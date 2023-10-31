@@ -5,13 +5,15 @@ function Property(props) {
     return (
         <React.Fragment>
             <h2>{props.name}</h2>
-            <button>Update</button> <button>Delete</button>
+            <button onClick={props.onPropEdit}>Update</button> <button onClick={props.onPropDelete}>Delete</button>
         </React.Fragment>
     );
 }
 
 Property.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
+    onPropDelete: PropTypes.func,
+    onPropEdit: PropTypes.func
 }
 
 export default Property;
