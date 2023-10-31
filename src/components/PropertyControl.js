@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import NewPropertyForm from "./NewPropertyForm";
-import Property from "./Property";
 import PropertyList from "./PropertyList";
 import EditPropertyForm from "./EditPropertyForm";
+import PropertyDetail from "./PropertyDetail";
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
@@ -36,6 +36,7 @@ const handleDeletingProperty = (id) => {
     const newMainPropertyList = mainPropertyList.filter(property => property.id !== selectedProperty.id).concat(propertyToEdit);
     setMainPropertyList(newMainPropertyList);
     setSelectedProperty(null);
+    setEditing(false);
   }
 
   const handleAddingNewPropertyToList = (newProperty) => {
@@ -55,7 +56,7 @@ const handleDeletingProperty = (id) => {
         currectlyVisible=<EditPropertyForm property={selectedProperty} onPropEditing={handleEditingPropertyInList}/>
         buttonText="To List";
       } else if (selectedProperty != null) {
-       currectlyVisible = <Property property = {selectedProperty} onPropDelete={handleDeletingProperty} onPropEdit = {handleEditClick}/>
+       currectlyVisible = <PropertyDetail property={selectedProperty} onPropDelete={handleDeletingProperty} onPropEdit = {handleEditClick}/>
        buttonText="To List";
       } else if (formVisible) {
         currectlyVisible = <NewPropertyForm onCreatingNewProperty= {handleAddingNewPropertyToList}/>
