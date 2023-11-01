@@ -3,6 +3,7 @@ import NewPropertyForm from "./NewPropertyForm";
 import PropertyList from "./PropertyList";
 import EditPropertyForm from "./EditPropertyForm";
 import PropertyDetail from "./PropertyDetail";
+import db from './../firebase';
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
