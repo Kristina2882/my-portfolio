@@ -1,17 +1,38 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import NewPropertyForm from "./NewPropertyForm";
 import PropertyList from "./PropertyList";
 import EditPropertyForm from "./EditPropertyForm";
 import PropertyDetail from "./PropertyDetail";
-import db from './../firebase';
+import {db} from './../firebase';
+import { collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc } from "firebase/firestore";
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
     const [mainPropertyList, setMainPropertyList] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [editing, setEditing] = useState(false);
+    const [error, setError] = useState(null);
 
+useEffect(() => {
+  const unSubscribe = onSnapshot(
+    collection(db, "properties"),
+    (collectionSnapshot) => {
+    const properties = [];
+    collectionSnapshot.forEach((doc) => {
+    properties.push({
+      name: doc.data().name,
+      id: doc.id
+    });
+    });
+    setMainPropertyList(properties);
+    },
+    (error) => {
+    setError(error.message);
+    }
+  );
+  return () => unSubscribe;
 
+},[]);
 
 const handleClick = () => {
     if (selectedProperty != null) {
@@ -23,9 +44,9 @@ const handleClick = () => {
         }
 }
 
-const handleDeletingProperty = (id) => {
-    const newMainPropertyList = mainPropertyList.filter(property => property.id !== id);
-    setMainPropertyList(newMainPropertyList);
+const handleDeletingProperty = async(id) => {
+    const propertyToDelete = doc(db, "properties", id);
+    deleteDoc(propertyToDelete);
     setSelectedProperty(null);
   }
 
@@ -33,16 +54,15 @@ const handleDeletingProperty = (id) => {
    setEditing(true);
   }
 
-  const handleEditingPropertyInList = (propertyToEdit) => {
-    const newMainPropertyList = mainPropertyList.filter(property => property.id !== selectedProperty.id).concat(propertyToEdit);
-    setMainPropertyList(newMainPropertyList);
+  const handleEditingPropertyInList = async (propertyToEdit) => {
+    const propertyRef = doc(db, "properties", propertyToEdit.id);
+    await updateDoc(propertyRef, propertyToEdit);
     setSelectedProperty(null);
     setEditing(false);
   }
 
-  const handleAddingNewPropertyToList = (newProperty) => {
-    const newMainPropertyList = mainPropertyList.concat(newProperty);
-    setMainPropertyList(newMainPropertyList);
+  const handleAddingNewPropertyToList = async (newProperty) => {
+    await addDoc(collection(db, "properties"), newProperty);
     setFormVisible(false);
   }
 
@@ -53,7 +73,10 @@ const handleDeletingProperty = (id) => {
     let currectlyVisible;
     let buttonText;
 
-    if (editing ) {      
+    if(error) {
+    currectlyVisible = <h5>There was an error: {error}.</h5>
+    }
+    else if (editing ) {      
         currectlyVisible=<EditPropertyForm property={selectedProperty} onPropEditing={handleEditingPropertyInList}/>
         buttonText="To List";
       } else if (selectedProperty != null) {
@@ -70,7 +93,7 @@ const handleDeletingProperty = (id) => {
   return (
     <React.Fragment>
         {currectlyVisible}
-        <button onClick={handleClick}>{buttonText}</button>
+       {error ? null: <button onClick={handleClick}>{buttonText}</button>} 
     </React.Fragment>
   );
 }
