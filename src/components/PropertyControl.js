@@ -3,8 +3,10 @@ import NewPropertyForm from "./NewPropertyForm";
 import PropertyList from "./PropertyList";
 import EditPropertyForm from "./EditPropertyForm";
 import PropertyDetail from "./PropertyDetail";
-import {db} from './../firebase';
+import {db, auth} from './../firebase';
 import { collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import UserProfile from "./UserProfile";
+import EditUserForm from "./EditUserForm";
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
@@ -12,6 +14,7 @@ function PropertyControl() {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState(null);
+    const [editUser, setEditUser] = useState(false);
 
 useEffect(() => {
   const unSubscribe = onSnapshot(
@@ -70,8 +73,42 @@ const handleDeletingProperty = async(id) => {
    const selection = mainPropertyList.filter(property => property.id === id)[0];
    setSelectedProperty(selection);
   }
-    let currectlyVisible;
-    let buttonText;
+
+  const handleEditUserClick = () => {
+    setEditUser(true);
+  }
+
+    if (auth.currentUser === null) {
+      return (
+        <React.Fragment>
+      <h2>Please sign in to proceed!</h2>
+        </React.Fragment>
+      );
+    }
+
+    else if (auth.currentUser.email !== "admin@com.tt") {
+      let currectlyVisible;
+
+      if (editUser) {
+        currectlyVisible = <EditUserForm/>
+      }
+      else {
+        currectlyVisible =  <UserProfile listForUsers = {mainPropertyList} userProfile={auth.currentUser.email} onClickEdit={handleEditUserClick}/>
+      }
+
+      return (
+        <React.Fragment>
+       {currectlyVisible}
+       </React.Fragment>
+      );
+    }
+
+    
+
+    else if (auth.currentUser.email === "admin@com.tt") {
+
+      let currectlyVisible;
+      let buttonText;
 
     if(error) {
     currectlyVisible = <h5>There was an error: {error}.</h5>
@@ -96,6 +133,7 @@ const handleDeletingProperty = async(id) => {
        {error ? null: <button onClick={handleClick}>{buttonText}</button>} 
     </React.Fragment>
   );
+}
 }
 
 export default PropertyControl;

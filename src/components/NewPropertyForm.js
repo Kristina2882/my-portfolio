@@ -7,7 +7,8 @@ function NewPropertyForm(props) {
    function handleNewPropertyFormSubmission(event) {
         event.preventDefault();
         props.onCreatingNewProperty({
-        name: event.target.name.value
+        name: event.target.name.value,
+        text: "will be added"
         });
 
     }

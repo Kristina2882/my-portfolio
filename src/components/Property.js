@@ -6,6 +6,7 @@ function Property(props) {
         <React.Fragment>
             <div onClick={() => props.whenPropertyClicked(props.id)}>
             <h2>{props.name}</h2>
+            <h4>{props.text}</h4>
             <hr/>
             </div>
         </React.Fragment>
@@ -14,7 +15,8 @@ function Property(props) {
 
 Property.propTypes = {
     name: PropTypes.string,
-    whenPropertyClicked: PropTypes.func
+    whenPropertyClicked: PropTypes.func,
+    text: PropTypes.string
 }
 
 export default Property;
