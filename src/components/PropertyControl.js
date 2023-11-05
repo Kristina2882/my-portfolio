@@ -5,8 +5,9 @@ import EditPropertyForm from "./EditPropertyForm";
 import PropertyDetail from "./PropertyDetail";
 import {db, auth} from './../firebase';
 import { collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import SignIn from "./SignIn";
 import UserProfile from "./UserProfile";
-import EditUserForm from "./EditUserForm";
+import SignOut from "./SignOut";
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
@@ -14,7 +15,9 @@ function PropertyControl() {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState(null);
-    const [editUser, setEditUser] = useState(false);
+    const [mainUserList, setMainUserList] = useState([]);
+    const [userProfileVisible, setUserProfileVisible] = useState(true);
+
 
 useEffect(() => {
   const unSubscribe = onSnapshot(
@@ -36,6 +39,29 @@ useEffect(() => {
   return () => unSubscribe;
 
 },[]);
+
+useEffect(() => {
+  const unSubscribe = onSnapshot(
+    collection(db, "users"),
+    (collectionSnapshot) => {
+      const users = [];
+      collectionSnapshot.forEach((user) =>{
+        users.push({
+         username: user.data().username,
+         property1: user.data().property1,
+         property2: user.data().property2,
+         property3: user.data().property3,
+         id: user.id
+        });
+      } );
+      setMainUserList(users);
+    },
+    (error) => {
+      setError(error.message);
+    }
+  );
+  return () => unSubscribe;
+}, []);
 
 const handleClick = () => {
     if (selectedProperty != null) {
@@ -74,39 +100,39 @@ const handleDeletingProperty = async(id) => {
    setSelectedProperty(selection);
   }
 
-  const handleEditUserClick = () => {
-    setEditUser(true);
+  const handleSignUp = async (newUser) => {
+   await addDoc(collection(db, "users"), newUser);
+   setUserProfileVisible(true);
+  }
+  
+  const handleSignOut = () => {
+    setUserProfileVisible(false);
+  }
+
+  const handleSignInClick = () => {
+    setUserProfileVisible(true);
   }
 
     if (auth.currentUser === null) {
       return (
         <React.Fragment>
       <h2>Please sign in to proceed!</h2>
+      <SignIn onClickSignUp={handleSignUp} onClickSignIn={handleSignInClick} propList = {mainPropertyList} />
         </React.Fragment>
       );
     }
 
     else if (auth.currentUser.email !== "admin@com.tt") {
-      let currectlyVisible;
-
-      if (editUser) {
-        currectlyVisible = <EditUserForm/>
-      }
-      else {
-        currectlyVisible =  <UserProfile listForUsers = {mainPropertyList} userProfile={auth.currentUser.email} onClickEdit={handleEditUserClick}/>
-      }
-
       return (
         <React.Fragment>
-       {currectlyVisible}
-       </React.Fragment>
+        <UserProfile userList={mainUserList} userName={auth.currentUser.email} propArray={mainPropertyList} />
+        <SignOut onClickSignOut = {handleSignOut}/>
+        </React.Fragment>
       );
     }
 
-    
-
+     
     else if (auth.currentUser.email === "admin@com.tt") {
-
       let currectlyVisible;
       let buttonText;
 
@@ -131,6 +157,7 @@ const handleDeletingProperty = async(id) => {
     <React.Fragment>
         {currectlyVisible}
        {error ? null: <button onClick={handleClick}>{buttonText}</button>} 
+       <SignOut onClickSignOut = {handleSignOut}/>
     </React.Fragment>
   );
 }

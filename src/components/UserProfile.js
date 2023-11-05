@@ -1,35 +1,33 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import {auth} from '../firebase';
+import User from "./User";
 
 function UserProfile(props) {
 
-    const propsArray = props.listForUsers.map(function(property) {
-    return property.name;
-    }
-    );
-
-    console.log(propsArray);
-
+    const profileForUser = props.userList.filter(user => user.username === props.userName);
 
     return (
-        <React.Fragment>  
-        <h2><strong>{props.userProfile}</strong></h2>
-        <h2>{propsArray[0]}: {props.property1}</h2>
-        <h2>{propsArray[1]}: {props.property2}</h2>
-        <h2>{propsArray[2]}: {props.property3}</h2>
-         <button onClick={props.onClickEdit}>Edit</button>
-         
+        <React.Fragment>
+        <h2>User profile</h2>
+        {profileForUser.map((user) => 
+        <React.Fragment>
+            <User
+            propArray={props.propArray}
+            username={user.username}
+            property1={user.property1}
+            property2={user.property2}
+            property3={user.property3}
+        />
+        </React.Fragment>
+        )}
         </React.Fragment>
     );
 }
 
 UserProfile.propTypes = {
-    listForUsers: PropTypes.array,
-    userProfile: PropTypes.string,
-    property1: PropTypes.string,
-    property2: PropTypes.string,
-    property3: PropTypes.string,
-    onClickEdit: PropTypes.func
+    userList: PropTypes.array,
+    userName: PropTypes.string,
+    propArray: PropTypes.array
+
 }
 export default UserProfile;
