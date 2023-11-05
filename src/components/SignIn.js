@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 
 function SignIn(props) {
 
-
  const [signInSuccess, setSignInSuccess] = useState(null);
  const [signUpSuccess, setSignUpSuccess] = useState(null);
 
@@ -77,19 +76,19 @@ function SignIn(props) {
                 name="passwordSignUp"
                 placeholder="Enter password"/>
                 <br/><hr/>
-                <label>{props.propList[0].name}</label>
+                <label>{props.propList[0].name}</label> 
                 <input
                 type="property1"
                 name="property1"
                 />
                 <br/> <br/>
-                <label>{props.propList[1].name}</label>
+                <label>{props.propList[1].name}</label> 
                  <input
                 type="property2"
                 name="property2"
                 />
                 <br/> <br/>
-                <label>{props.propList[2].name}</label>
+                <label>{props.propList[2].name}</label> 
                  <input
                 type="property3"
                 name="property3"

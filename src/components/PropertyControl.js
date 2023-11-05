@@ -8,6 +8,7 @@ import { collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc } from "fireb
 import SignIn from "./SignIn";
 import UserProfile from "./UserProfile";
 import SignOut from "./SignOut";
+import EditUserForm from "./EditUserForm";
 
 function PropertyControl() {
     const [formVisible, setFormVisible] = useState(false);
@@ -16,7 +17,8 @@ function PropertyControl() {
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState(null);
     const [mainUserList, setMainUserList] = useState([]);
-    const [userProfileVisible, setUserProfileVisible] = useState(true);
+    const [userProfileVisible, setUserProfileVisible] = useState(false);
+    const [editUserVisible, setEditUserVisible] = useState(false);
 
 
 useEffect(() => {
@@ -113,25 +115,44 @@ const handleDeletingProperty = async(id) => {
     setUserProfileVisible(true);
   }
 
+  const handleEditUserClick = () => {
+   setEditUserVisible(true);
+   setUserProfileVisible(false);
+  }
+
+  const handleEditUser = async (userToEdit) => {
+    const userRef = doc(db, "users", userToEdit.id);
+    await updateDoc(userRef, userToEdit);
+    setEditUserVisible(false);
+    setUserProfileVisible(true);
+  }
+
+  let current; 
+
     if (auth.currentUser === null) {
       return (
-        <React.Fragment>
+      <React.Fragment>
       <h2>Please sign in to proceed!</h2>
       <SignIn onClickSignUp={handleSignUp} onClickSignIn={handleSignInClick} propList = {mainPropertyList} />
-        </React.Fragment>
+      </React.Fragment>
       );
     }
 
     else if (auth.currentUser.email !== "admin@com.tt") {
+      if (editUserVisible) {
+      current = <EditUserForm onEditUser={handleEditUser} propList={mainPropertyList} userList={mainUserList} userName={auth.currentUser.email}/>
+      }
+      else if (userProfileVisible) {
+      current = <UserProfile userList={mainUserList} userName={auth.currentUser.email} propArray={mainPropertyList}  onEditUserClick={handleEditUserClick} />
+      }
       return (
         <React.Fragment>
-        <UserProfile userList={mainUserList} userName={auth.currentUser.email} propArray={mainPropertyList} />
+        {current}
         <SignOut onClickSignOut = {handleSignOut}/>
         </React.Fragment>
       );
     }
 
-     
     else if (auth.currentUser.email === "admin@com.tt") {
       let currectlyVisible;
       let buttonText;

@@ -4,22 +4,19 @@ import User from "./User";
 
 function UserProfile(props) {
 
-    const profileForUser = props.userList.filter(user => user.username === props.userName);
+    const profileForUser = props.userList.filter(user => user.username === props.userName)[0];
 
     return (
         <React.Fragment>
         <h2>User profile</h2>
-        {profileForUser.map((user) => 
-        <React.Fragment>
             <User
             propArray={props.propArray}
-            username={user.username}
-            property1={user.property1}
-            property2={user.property2}
-            property3={user.property3}
+            username={profileForUser.username}
+            property1={profileForUser.property1}
+            property2={profileForUser.property2}
+            property3={profileForUser.property3}
         />
-        </React.Fragment>
-        )}
+        <button onClick={props.onEditUserClick}>Edit profile</button>
         </React.Fragment>
     );
 }
@@ -27,7 +24,8 @@ function UserProfile(props) {
 UserProfile.propTypes = {
     userList: PropTypes.array,
     userName: PropTypes.string,
-    propArray: PropTypes.array
+    propArray: PropTypes.array,
+    onEditUserClick: PropTypes.func
 
 }
 export default UserProfile;
